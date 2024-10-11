@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
-import "../styles/WeatherApp.css"; // Make sure your CSS file is correctly imported
+import "../styles/WeatherApp.css";
 import { Spin, AutoComplete } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
 
 interface WeatherData {
     name: string;
@@ -81,7 +82,6 @@ const WeatherApp: React.FC = () => {
             setSearchInput("");
         }
     };
-
     // Check for data in localStorage on initial load
     useEffect(() => {
         const savedWeatherData = localStorage.getItem("weatherData");
@@ -92,7 +92,6 @@ const WeatherApp: React.FC = () => {
         } else {
             setSearchInput("");
         }
-
         if (savedWeatherData) {
             setWeatherData(JSON.parse(savedWeatherData));
             setNotFound(false);
@@ -151,7 +150,7 @@ const WeatherApp: React.FC = () => {
             </div>
 
             {/* Loading Spinner */}
-            {loading && <Spin size="large" style={{ height: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }} />}
+            {loading && <Spin className="spinner" indicator={<LoadingOutlined spin />} size="large" />}
 
             {/* Before Search */}
             {!hasSearched && !loading && (

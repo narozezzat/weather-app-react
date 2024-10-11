@@ -389,3 +389,10 @@ body::before {
 .ant-select-selection-placeholder {
   color: white !important;
 }
+
+.spinner {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
