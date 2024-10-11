@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
-import "../styles/WeatherApp.css";
-import { Spin } from "antd"; // Import Spin for loading spinner
+import "../styles/WeatherApp.css"; // Make sure your CSS file is correctly imported
+import { Spin, AutoComplete } from "antd";
 
 interface WeatherData {
     name: string;
@@ -15,13 +15,21 @@ interface ForecastData {
     weather: { main: string }[];
 }
 
+// List of cities in Egypt
+const citiesInEgypt = [
+    "Cairo", "Alexandria", "Giza", "Sharm El-Sheikh", "Luxor",
+    "Aswan", "Hurghada", "Port Said", "Suez", "Mansoura",
+    "Tanta", "Zagazig", "Ismailia", "Damanhur", "Faiyum",
+    "Minya", "Qena", "Beni Suef", "Kafr El Sheikh", "Sohag"
+];
+
 const WeatherApp: React.FC = () => {
     const [searchInput, setSearchInput] = useState<string>("");
     const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
     const [forecastData, setForecastData] = useState<ForecastData[]>([]);
     const [notFound, setNotFound] = useState<boolean>(false);
     const [hasSearched, setHasSearched] = useState<boolean>(false);
-    const [loading, setLoading] = useState<boolean>(false); // Loading state
+    const [loading, setLoading] = useState<boolean>(false);
 
     const apiKey = `3bee3a23d382eaeb96872ee2f48247d9`;
     const date = new Date();
@@ -31,8 +39,8 @@ const WeatherApp: React.FC = () => {
 
     const formattedDate = `${dayName}, ${dayNumber} ${monthName}`;
 
-    const getWeatherData = useCallback(async (location: string) => { // Wrapped in useCallback
-        setLoading(true); // Start loading
+    const getWeatherData = useCallback(async (location: string) => {
+        setLoading(true);
         try {
             const weatherRes = await fetch(
                 `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${apiKey}&units=metric`
@@ -44,7 +52,7 @@ const WeatherApp: React.FC = () => {
 
                 // Save data to localStorage
                 localStorage.setItem("weatherData", JSON.stringify(weatherJson));
-                localStorage.setItem("lastSearch", location); // Save last searched city
+                localStorage.setItem("lastSearch", location);
 
                 const forecastRes = await fetch(
                     `https://api.openweathermap.org/data/2.5/forecast?q=${location}&appid=${apiKey}&units=metric`
@@ -62,10 +70,10 @@ const WeatherApp: React.FC = () => {
             console.error("Error fetching data:", error);
             setNotFound(true);
         } finally {
-            setLoading(false); // End loading
+            setLoading(false);
             setHasSearched(true);
         }
-    }, [apiKey]); // Added apiKey as a dependency
+    }, [apiKey]);
 
     const handleSearch = () => {
         if (searchInput.trim()) {
@@ -77,12 +85,12 @@ const WeatherApp: React.FC = () => {
     // Check for data in localStorage on initial load
     useEffect(() => {
         const savedWeatherData = localStorage.getItem("weatherData");
-        const lastSearch = localStorage.getItem("lastSearch"); // Get last searched city
+        const lastSearch = localStorage.getItem("lastSearch");
         if (lastSearch) {
-            setSearchInput(lastSearch); // Set last search in input
-            getWeatherData(lastSearch); // Fetch weather data for the last searched city
+            setSearchInput(lastSearch);
+            getWeatherData(lastSearch);
         } else {
-            setSearchInput(""); // Clear input if no last search found
+            setSearchInput("");
         }
 
         if (savedWeatherData) {
@@ -91,29 +99,51 @@ const WeatherApp: React.FC = () => {
             setHasSearched(true);
 
             const savedWeather = JSON.parse(savedWeatherData);
-            getWeatherData(savedWeather.name); // Re-fetch forecast data for the saved location
+            getWeatherData(savedWeather.name);
         }
-    }, [getWeatherData]); // Now it's safe to include getWeatherData here
+    }, [getWeatherData]);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
+    const handleInputChange = (value: string) => {
         setSearchInput(value);
 
         if (value === "") {
-            setNotFound(false); // Reset notFound state
-            setHasSearched(false); // Reset hasSearched state
-            setWeatherData(null); // Clear weather data
-            setForecastData([]); // Clear forecast data
+            setNotFound(false);
+            setHasSearched(false);
+            setWeatherData(null);
+            setForecastData([]);
         }
     };
 
+    // Filter cities based on input
+    const filteredCities = citiesInEgypt.filter(city =>
+        city.toLowerCase().includes(searchInput.toLowerCase())
+    );
+
+    // Determine dropdown options
+    const dropdownOptions = filteredCities.length > 0
+        ? filteredCities.map(city => ({ value: city }))
+        : [{ value: "No data available", disabled: true }]; // No data option
+
     return (
         <div className="container">
+            <h1 className="headTitle">Weather App</h1>
             <div className="search">
-                <input
-                    type="text"
+                <AutoComplete
+                    className="custom-autocomplete"
+                    style={{ width: '100%' }}
+                    dropdownStyle={{
+                        backgroundColor: 'rgba(0, 0, 0, 0.50)',
+                        color: '#000'
+                    }}
+                    options={dropdownOptions}
                     value={searchInput}
-                    onChange={handleInputChange} // Use custom input change handler
+                    onChange={handleInputChange}
+                    onSelect={(value) => {
+                        setSearchInput(value);
+                        if (value !== "No data available") {
+                            getWeatherData(value);
+                        }
+                    }}
                     placeholder="Search city..."
                     onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                 />

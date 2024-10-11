@@ -58,12 +58,13 @@ body::before {
     rgba(0, 0, 0, 0.2),
     rgba(255, 255, 255, 0.2)
   );
-  height: 470px;
+  /* 470 px */
+  height: 500px;
   /* width: 300px; */
   width: 350px;
   border-radius: 15px;
   padding: 20px 15px;
-  gap: 25px;
+  gap: 15px;
   overflow: hidden;
 }
 
@@ -81,12 +82,19 @@ body::before {
   }
 }
 
+.container .headTitle {
+  display: flex;
+  justify-content: center;
+  font-family: cursive;
+  font-size: 40px;
+}
+
 .container .search {
   display: flex;
   align-items: center;
   justify-content: space-between;
   background-color: rgba(0, 0, 0, 0.25);
-  padding: 10px 20px;
+  padding: 5px 20px;
   border-radius: 50px;
   border: 2px solid transparent;
   width: 100%;
@@ -107,10 +115,10 @@ body::before {
   transition: 0.2s;
 }
 
-.container .search input::placeholder {
+/* .container .search input::placeholder {
   color: #eee;
   transition: 0.3s;
-}
+} */
 
 @media (max-height: 530px) {
   .container .search input {
@@ -367,4 +375,17 @@ body::before {
   .container .weather .forecast-item .date {
     translate: 10px;
   }
+}
+
+.custom-autocomplete .ant-select-selector {
+  background-color: transparent !important;
+  border: none !important;
+}
+.ant-select-selector {
+  border-color: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+.ant-select-selection-placeholder {
+  color: white !important;
 }
