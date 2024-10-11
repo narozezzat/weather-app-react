@@ -23,7 +23,7 @@ const WeatherApp: React.FC = () => {
     const [hasSearched, setHasSearched] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false); // Loading state
 
-    const apiKey = `3bee3a23d382eaeb96872ee2f48247d9`;
+    const apiKey = process.env.REACT_APP_API_KEY || "";
     const date = new Date();
     const dayName = date.toLocaleDateString(undefined, { weekday: 'long' });
     const dayNumber = date.toLocaleDateString(undefined, { day: 'numeric' });
@@ -44,6 +44,7 @@ const WeatherApp: React.FC = () => {
 
                 // Save data to localStorage
                 localStorage.setItem("weatherData", JSON.stringify(weatherJson));
+                localStorage.setItem("lastSearch", location); // Save last searched city
 
                 const forecastRes = await fetch(
                     `https://api.openweathermap.org/data/2.5/forecast?q=${location}&appid=${apiKey}&units=metric`
@@ -76,6 +77,14 @@ const WeatherApp: React.FC = () => {
     // Check for data in localStorage on initial load
     useEffect(() => {
         const savedWeatherData = localStorage.getItem("weatherData");
+        const lastSearch = localStorage.getItem("lastSearch"); // Get last searched city
+        if (lastSearch) {
+            setSearchInput(lastSearch); // Set last search in input
+            getWeatherData(lastSearch); // Fetch weather data for the last searched city
+        } else {
+            setSearchInput(""); // Clear input if no last search found
+        }
+
         if (savedWeatherData) {
             setWeatherData(JSON.parse(savedWeatherData));
             setNotFound(false);
@@ -86,13 +95,25 @@ const WeatherApp: React.FC = () => {
         }
     }, [getWeatherData]); // Now it's safe to include getWeatherData here
 
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setSearchInput(value);
+
+        if (value === "") {
+            setNotFound(false); // Reset notFound state
+            setHasSearched(false); // Reset hasSearched state
+            setWeatherData(null); // Clear weather data
+            setForecastData([]); // Clear forecast data
+        }
+    };
+
     return (
         <div className="container">
             <div className="search">
                 <input
                     type="text"
                     value={searchInput}
-                    onChange={(e) => setSearchInput(e.target.value)}
+                    onChange={handleInputChange} // Use custom input change handler
                     placeholder="Search city..."
                     onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                 />
