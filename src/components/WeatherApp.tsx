@@ -169,7 +169,7 @@ const WeatherApp: React.FC = () => {
                                         month: 'short'
                                     })}
                                 </p>
-                                <img src={`images/clear.png`} alt="forecast icon" />
+                                <img src={`images/Clear.png`} alt="forecast icon" />
                                 <p className="temperature">{Math.round(forecast.main.temp)}°C</p>
                             </div>
                         ))}
