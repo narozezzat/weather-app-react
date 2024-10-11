@@ -23,7 +23,7 @@ const WeatherApp: React.FC = () => {
     const [hasSearched, setHasSearched] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false); // Loading state
 
-    const apiKey = process.env.REACT_APP_API_KEY || "";
+    const apiKey = `3bee3a23d382eaeb96872ee2f48247d9`;
     const date = new Date();
     const dayName = date.toLocaleDateString(undefined, { weekday: 'long' });
     const dayNumber = date.toLocaleDateString(undefined, { day: 'numeric' });
